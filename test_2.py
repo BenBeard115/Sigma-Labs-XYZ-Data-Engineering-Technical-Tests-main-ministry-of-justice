@@ -107,7 +107,6 @@ if __name__ == "__main__":
     for index, row in df.iterrows():
 
         postcode = row["home_postcode"]
-        print(postcode)
         json = get_json(postcode)
 
         court_type = row["looking_for_court_type"]
