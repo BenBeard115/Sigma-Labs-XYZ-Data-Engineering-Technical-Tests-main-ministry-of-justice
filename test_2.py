@@ -1,3 +1,5 @@
+"""Contains functions to return the closest courts to a set of people"""
+
 import pandas as pd
 import requests
 
@@ -23,44 +25,44 @@ import requests
 # - distance
 # dx_number is not always returned and the "types" field can be empty.
 
-"""
-[
-    {
-        "name": "Central London Employment Tribunal",
-        "lat": 51.5158158439741,
-        "lon": -0.118745425821452,
-        "number": null,
-        "cci_code": null,
-        "magistrate_code": null,
-        "slug": "central-london-employment-tribunal",
-        "types": [
-            "Tribunal"
-        ],
-        "address": {
-            "address_lines": [
-                "Victory House",
-                "30-34 Kingsway"
-            ],
-            "postcode": "WC2B 6EX",
-            "town": "London",
-            "type": "Visiting"
-        },
-        "areas_of_law": [
-            {
-                "name": "Employment",
-                "external_link": "https%3A//www.gov.uk/courts-tribunals/employment-tribunal",
-                "display_url": "<bound method AreaOfLaw.display_url of <AreaOfLaw: Employment>>",
-                "external_link_desc": "Information about the Employment Tribunal"
-            }
-        ],
-        "displayed": true,
-        "hide_aols": false,
-        "dx_number": "141420 Bloomsbury 7",
-        "distance": 1.29
-    },
-    etc
-]
-"""
+# """
+# [
+#     {
+#         "name": "Central London Employment Tribunal",
+#         "lat": 51.5158158439741,
+#         "lon": -0.118745425821452,
+#         "number": null,
+#         "cci_code": null,
+#         "magistrate_code": null,
+#         "slug": "central-london-employment-tribunal",
+#         "types": [
+#             "Tribunal"
+#         ],
+#         "address": {
+#             "address_lines": [
+#                 "Victory House",
+#                 "30-34 Kingsway"
+#             ],
+#             "postcode": "WC2B 6EX",
+#             "town": "London",
+#             "type": "Visiting"
+#         },
+#         "areas_of_law": [
+#             {
+#                 "name": "Employment",
+#                 "external_link": "https%3A//www.gov.uk/courts-tribunals/employment-tribunal",
+#                 "display_url": "<bound method AreaOfLaw.display_url of <AreaOfLaw: Employment>>",
+#                 "external_link_desc": "Information about the Employment Tribunal"
+#             }
+#         ],
+#         "displayed": true,
+#         "hide_aols": false,
+#         "dx_number": "141420 Bloomsbury 7",
+#         "distance": 1.29
+#     },
+#     etc
+# ]
+# """
 
 # Use this API and the data in people.csv to determine how far each person's nearest
 # desired court is. Generate an output (of whatever format you feel is appropriate)
@@ -83,6 +85,7 @@ class APIError(Exception):
 
 
 def get_json(postcode: str):
+    """Gets json data from the api"""
     url = API_URL + postcode
     response = requests.get(url, timeout=10)
 
@@ -105,20 +108,24 @@ if __name__ == "__main__":
     output = []
 
     for index, row in df.iterrows():
-
-        postcode = row["home_postcode"]
-        json = get_json(postcode)
+        # gets json from api specific to the postcode
+        home_postcode = row["home_postcode"]
+        json = get_json(home_postcode)
 
         court_type = row["looking_for_court_type"]
 
+        # adds data to dictionary
         data = {"name": row["person_name"],
-                "court_type": court_type, "home_postcode": postcode}
+                "court_type": court_type, "home_postcode": home_postcode}
 
+        # finds the closest court that matches the desired type
         for court in json:
             if court_type in court.get("types"):
+                # adds data to dictionary
                 data["closest_court"] = court.get("name")
                 data["distance"] = court.get("distance")
 
+                # adds dx_number to dictionary if present
                 if court.get("dx_number"):
                     data["dx_number"] = court.get("dx_number")
 

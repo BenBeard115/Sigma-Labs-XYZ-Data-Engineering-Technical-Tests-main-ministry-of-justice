@@ -1,4 +1,4 @@
-from datetime import datetime
+"""Contains functions to format a log file into a dictionary"""
 # [TODO]: step 1
 # Update the is_log_line function below to skip lines that are not valid log lines.
 # Valid log lines have a timestamp, error type, and message. For example, lines 1, 3,
@@ -12,9 +12,10 @@ def is_log_line(line: str) -> bool:
     """Takes a log line and returns True if it is a valid log line and returns nothing
     if it is not.
     """
-
+    # formats the log
     line = [value for value in line.split(" ") if value]
 
+    # checks the log is long enough
     if len(line) < 5:
         return False
     return True
@@ -29,10 +30,19 @@ def get_dict(line):
     """Takes a log line and returns a dict with
     `timestamp`, `log_level`, `message` keys
     """
+    # formats the line into a list
     line = [value for value in line.split(" ") if value]
+
+    # adds initialized to line if it runs over to a second line
+    if line[-1] == "\n":
+        line.pop()
+        line.append("initialized")
+
+    # removes newlines
     formatted_message = " ".join(line[3:]).replace(
         "\n", "")
 
+    # reformats line to match dictionary output
     line = [line[0] + " " + line[1], line[2], formatted_message]
 
     return {"timestamp": line[0], "log_level": line[1], "message": line[2]}
@@ -57,8 +67,8 @@ if __name__ == "__main__":
     # ---- OUTPUT --- #
     # You can print out each line of the log file line by line
     # by uncommenting this code below
-    # for i, line in enumerate(log_parser_step_1("sample.log")):
-    #     print(i, line)
+    for i, line in enumerate(log_parser_step_2("sample.log")):
+        print(i, line)
 
     # ---- TESTS ---- #
     # DO NOT CHANGE
